@@ -1,19 +1,13 @@
-from rest_framework.viewsets import ModelViewSet
-from .serializers import StaffSerializer
 from .models import Staff
-from rest_framework.pagination import PageNumberPagination
+from .views import StaffViewSet
 
 
-class ProjectPagination(PageNumberPagination):
-    page_size = 10
+class StaffFilterViewSet(StaffViewSet):
+    """Filter staff by hierarchy level.
 
-
-class StaffFilterViewSet(ModelViewSet):
-    serializer_class = StaffSerializer
-    queryset = Staff.objects.all()
-    pagination_class = ProjectPagination
+    Defaults to employee level if query parameter is not passed.
+    """
 
     def get_queryset(self):
-        queryset = Staff.objects.all()
-        queryset = queryset.filter(post="4")
-        return queryset
+        post = self.request.query_params.get("post", Staff.EMPLOYEE_LEVEL)
+        return Staff.objects.filter(post=post).order_by("post")
